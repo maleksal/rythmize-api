@@ -1,1 +1,1 @@
-web: gunicorn rythmize:app
+web: gunicorn run:app

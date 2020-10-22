@@ -13,3 +13,4 @@ Werkzeug==1.0.1
 Flask_Script==2.0.6
 flask_praetorian==1.0.0
 python-dotenv==0.14.0
+gunicorn==19.7.1

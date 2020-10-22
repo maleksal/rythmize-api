@@ -1,1 +1,1 @@
-web: gunicorn app:rythmize
+web: gunicorn rythmize:app

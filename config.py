@@ -6,8 +6,6 @@ from dotenv import find_dotenv, load_dotenv
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 if os.path.exists(dotenv_path):
     load_dotenv(dotenv_path)
-else:
-    raise Exception('No env settings found.')
 
 class Config:
     """Base config."""
@@ -31,7 +29,7 @@ class DevelopmentConfig(Config):
     MAIL_PORT=465
     MAIL_USE_SSL=True
     MAIL_USE_TLS=False
-    MAIL_SUPPRESS_SEND = False
+    #MAIL_SUPPRESS_SEND = False
 
 class ProductionConfig(Config):
     """Config for profuction."""

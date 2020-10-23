@@ -2,11 +2,12 @@
 User Model
 
 """
-from ..extensions import db, ma
 from marshmallow import fields
-from sqlalchemy import Column, String, Integer, Text, Boolean
+from sqlalchemy import Boolean, Column, Integer, String, Text
 from sqlalchemy.orm import relationship, validates
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from ..extensions import db, ma
 
 
 class FlaskApiSecurity(object):
@@ -14,21 +15,19 @@ class FlaskApiSecurity(object):
     FlaskApiSecurity class
     Used by flask-paertorian extension, Contains methods
     will be inherted by other classes and User model validation.
-    
     """
-    
     @property
     def rolenames(self):
         return []
-
+    
     @classmethod
     def lookup(cls, username):
         return cls.query.filter_by(username=username).one_or_none()
-
+    
     @classmethod
     def identify(cls, id):
         return cls.query.get(id)
-
+    
     @property
     def identity(self):
         return self.id

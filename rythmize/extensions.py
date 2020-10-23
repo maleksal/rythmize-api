@@ -1,10 +1,10 @@
 from flask import current_app
-from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
+from flask_mail import Mail, Message
 from flask_marshmallow import Marshmallow
 from flask_praetorian import Praetorian
-from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
-from flask_mail import Mail, Message
-from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
+from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
 # Setup sqlalchemy
 db = SQLAlchemy()
@@ -20,7 +20,6 @@ message = Message
 
 # Setup email confirmation token
 
-
 def send_email_verification(email):
     from flask import url_for
     """Send an email verification link to user email."""
@@ -34,10 +33,8 @@ def send_email_verification(email):
 def confirm_email_by_link(token):
     """
     Confirms email by token
-
     Returns:
         email or None.
-    
     """
     serializer = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
     try:
@@ -46,3 +43,35 @@ def confirm_email_by_link(token):
         return None
     return email
 
+
+class DatabaseManager(object):
+    """Handels database operations like save, close.."""
+    _session = db.session
+
+    def add(self, obj=None):
+        """add obj to database."""
+        if obj:
+            self._session.add(obj)
+
+    def save(self):
+        """Commits changes to database."""
+        self._session.commit()
+
+    def remove(self, obj):
+        """Removes an object from database."""
+        if obj:
+            self._session.remove(obj)
+
+    def close(self):
+        """Closes database connection."""
+        self._session.close()
+    
+    def get(self, cls, id=None, username=None):
+        """Retrives an object from database."""
+        if id:
+            return cls.query.filter_by(id=id).one_or_none()
+        return cls.query.filter_by(username=username).one_or_none()
+
+# class instance
+db_manager = DatabaseManager()
+        

@@ -3,11 +3,12 @@ JwtKeys Model
 stores information about youtube/spotify web tokens
 
 """
-from flask import current_app
-from ..extensions import db
-from sqlalchemy import Column, String, Integer, ForeignKey
-from sqlalchemy.orm import relationship
 from cryptography.fernet import Fernet
+from flask import current_app
+from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
+
+from ..extensions import db
 
 
 class Security(object):
@@ -18,7 +19,7 @@ class Security(object):
         secret_key = current_app.secret_key
         key = Fernet.generate_key()
         return Fernet(bytes(secret_key, 'utf-8'))
-
+    
     def encrypt_data(self, value):
         """Handles Encryption."""
         security = self.load_configs()

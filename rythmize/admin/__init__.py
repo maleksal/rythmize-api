@@ -2,11 +2,12 @@
 Customize Admin Module
 
 """
-from flask_admin.contrib.sqla import ModelView
 from flask_admin import Admin
-from rythmize import db
+from flask_admin.contrib.sqla import ModelView
+
+from ..extensions import db
+from ..models.keys import SpotifyJsonWebToken, YoutubeJsonWebToken
 from ..models.user import User
-from ..models.keys import YoutubeJsonWebToken, SpotifyJsonWebToken
 
 
 class CustomAdmin(ModelView):
@@ -20,7 +21,6 @@ class CustomAdmin(ModelView):
                 raise Exception("User is already linked to table")
             #user.create_link_tables()
         return user
-
 
 admin_settings = Admin()
 

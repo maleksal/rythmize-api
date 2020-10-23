@@ -26,7 +26,7 @@ def send_email_verification(email):
     serializer = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
     token = serializer.dumps(email, salt='rythmize-email-confirmation')
     link = url_for('api_views.email_confirmation', token=token, _external=True)
-    msg = message('Confirm email', sender='malek.salem.14@gmail.com', recipients=[email]) 
+    msg = message('Confirm email', recipients=[email])
     msg.body = f'Your confirmation link is {link}'
     mail.send(msg)
 

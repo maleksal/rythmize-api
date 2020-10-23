@@ -40,9 +40,9 @@ class ProductionConfig(Config):
     MAIL_SERVER = environ.get("MAIL_SERVER")
     MAIL_USERNAME = environ.get("MAIL_USERNAME")
     MAIL_PASSWORD = environ.get("MAIL_PASSWORD")
-    MAIL_PORT=465
-    MAIL_USE_SSL=True
-    MAIL_USE_TLS=False
+    MAIL_PORT = environ.get("MAIL_PORT")
+    MAIL_USE_SSL = environ.get("MAIL_SSL")
+    MAIL_USE_TLS = environ.get("MAIL_TLS")
 
 config = {
     "Production": ProductionConfig,

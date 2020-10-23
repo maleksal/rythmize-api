@@ -5,7 +5,6 @@ stores information about youtube/spotify web tokens
 """
 from cryptography.fernet import Fernet
 from flask import current_app
-from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from ..extensions import db
@@ -34,9 +33,9 @@ class Security(object):
 class BaseClass(Security):
     """Base class contains common columns and methods."""
 
-    jwt_token = Column(String(50), nullable=True)
-    _refresh_token = Column(String(50), nullable=True)
-    expires_on = Column(String(50), nullable=True)
+    jwt_token = db.Column(db.String(50), nullable=True)
+    _refresh_token = db.Column(db.String(50), nullable=True)
+    expires_on = db.Column(db.String(50), nullable=True)
 
     @property
     def refresh_token(self):
@@ -57,19 +56,19 @@ class YoutubeJsonWebToken(db.Model, BaseClass):
     """YoutubeJsonWebToken class."""
     
     __tablename__ = 'youtube_jwt'
-    id = Column(Integer,
+    id = db.Column(db.Integer,
                 primary_key=True)
-    user_id = Column(String(60),
-                     ForeignKey('user.id'))
+    user_id = db.Column(db.String(60),
+                     db.ForeignKey('user.id'))
 
 
 class SpotifyJsonWebToken(db.Model, BaseClass):
     """SpotifyJsonWebToken class."""
     
     __tablename__ = 'spotify_jwt'
-    id = Column(Integer,
+    id = db.Column(db.Integer,
                 primary_key=True)
-    user_id = Column(String(60),
-                     ForeignKey('user.id'))
+    user_id = db.Column(db.String(60),
+                     db.ForeignKey('user.id'))
 
 

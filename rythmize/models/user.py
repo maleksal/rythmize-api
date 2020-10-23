@@ -3,7 +3,7 @@ User Model
 
 """
 from marshmallow import fields
-from sqlalchemy import Boolean, Column, Integer, String, Text
+from ..extensions import db
 from sqlalchemy.orm import relationship, validates
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -37,24 +37,24 @@ class User(db.Model, FlaskApiSecurity):
     """User Class """
     __tablename__ = 'user'
 
-    id = Column(
-                Integer,
+    id = db.Column(
+                db.Integer,
                 primary_key=True)
-    username = Column(
-                String(255),
+    username = db.Column(
+                db.String(255),
                 nullable=False, unique=True)
-    email = Column(
-                String(255),
+    email = db.Column(
+                db.String(255),
                 nullable=False)
-    email_confirmed = Column(
-                        Boolean,
+    email_confirmed = db.Column(
+                        db.Boolean,
                         default=False)
-    _password = Column(
-                Text(),
+    _password = db.Column(
+                db.Text(),
                 nullable=False)
-    _spotify_keys = relationship("SpotifyJsonWebToken",
+    _spotify_keys = db.relationship("SpotifyJsonWebToken",
                                 uselist=False, cascade="all, delete, delete-orphan")
-    _youtube_keys = relationship("YoutubeJsonWebToken",
+    _youtube_keys = db.relationship("YoutubeJsonWebToken",
                                 uselist=False, cascade="all, delete, delete-orphan") 
 
     @property

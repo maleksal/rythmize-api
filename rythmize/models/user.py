@@ -52,10 +52,10 @@ class User(db.Model, FlaskApiSecurity):
     _password = db.Column(
                 db.Text(),
                 nullable=False)
-    _spotify_keys = db.relationship("SpotifyJsonWebToken",
-                                uselist=False, cascade="all, delete, delete-orphan", backref='user')
-    _youtube_keys = db.relationship("YoutubeJsonWebToken",
-                                uselist=False, cascade="all, delete, delete-orphan", backref='user') 
+    spotify_keys = db.relationship("SpotifyJsonWebToken",
+                                uselist=False, cascade="all, delete, delete-orphan")
+    youtube_keys = db.relationship("YoutubeJsonWebToken",
+                                uselist=False, cascade="all, delete, delete-orphan") 
 
     @property
     def password(self):

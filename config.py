@@ -27,6 +27,7 @@ class DevelopmentConfig(Config):
     MAIL_USERNAME = environ.get("MAIL_USERNAME")
     MAIL_PASSWORD = environ.get("MAIL_PASSWORD")
     MAIL_PORT = environ.get("MAIL_PORT")
+    MAIL_DEFAULT_SENDER = environ.get('MAIL_DEFAULT_SENDER')
     MAIL_SUPPRESS_SEND = False
 
 class ProductionConfig(Config):

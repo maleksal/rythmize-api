@@ -3,7 +3,6 @@ User Model
 
 """
 from marshmallow import fields
-from ..extensions import db
 from sqlalchemy.orm import relationship, validates
 from werkzeug.security import check_password_hash, generate_password_hash
 

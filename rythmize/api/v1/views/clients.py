@@ -7,24 +7,18 @@ from ....clients.spotify import SpotifyClient
 from ....extensions import db_manager
 from ....models.user import User, UserSchema
 
-"""
-api/v1/auth/connect/user_id/youtube_client
-api/v1/auth/connect/<user_id>/spotify_client
-api/v1/auth/connect/<user_id>/youtube_client/status
-api/v1/auth/connect/<user_id>/spotify_client/status
-
-"""
-
+""" 
+Not needed for now
 @api_views.route('auth/connect/spotify/')
 @flask_praetorian.auth_required
 def generate_spotify_callback():
     user_id = flask_praetorian.current_user().id
     user = User.query.get(user_id)
-    if user:
-        sclient = SpotifyClient(None, user)
-        return jsonify({'auth_url': sclient.callback_uri_auth()}), 200
-    return jsonify('user not found!'), 404
-
+    if user.spotify_keys.jwt_token:
+        return jsonify("User already connected."), 410
+    sclient = SpotifyClient(None, user)
+    return jsonify({'auth_url': sclient.callback_uri_auth()}), 200
+"""
 
 @api_views.route('auth/connect/spotify/callback/')
 def authenticate_callback():
@@ -33,8 +27,6 @@ def authenticate_callback():
     user = User.query.get(user_id)
     if 'error' in request.args.keys():
         return jsonify("Failed to authenticate."), 401
-    if user.spotify_keys.jwt_token:
-        return jsonify("User already connected."), 410
     code = request.args.get('code')
     sclient = SpotifyClient(code, user)
     data = sclient.handle_auth()

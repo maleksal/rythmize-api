@@ -47,7 +47,22 @@ def authenticate_callback():
 
     return jsonify('user is now connected'), 200
 
-@api_views.route('clients/spotify/playlists/', methods=["POST"])
+
+@api_views.route('auth/connect/spotify/status', methods=["GET"])
+@flask_praetorian.auth_required
+def spotify_status():
+    user_id = flask_praetorian.current_user().id
+    user = User.query.get(user_id)
+    sclient = SpotifyClient(None, user)
+    if auth := sclient.handle_auth():
+        if type(auth) == dict:
+            user.spotify_keys.jwt_token = auth["token"]
+            user.spotify_keys.expires_in = auth["expires"]
+            db_manager.save()
+        return jsonify('User connected'), 200
+    return jsonify({"url": sclient.callback_uri_auth()}), 401
+
+@api_views.route('clients/spotify/playlists/', methods=["GET"])
 @flask_praetorian.auth_required
 def get_user_playlists():
     user_id = flask_praetorian.current_user().id
@@ -61,7 +76,7 @@ def get_user_playlists():
         return jsonify(sclient.get_user_playlists()), 200
     return jsonify("user not authorized"), 401
 
-@api_views.route('clients/spotify/playlist/<playlist_id>/tracks', methods=["GET"])
+@api_views.route('clients/spotify/playlists/<playlist_id>/tracks', methods=["GET"])
 @flask_praetorian.auth_required
 def get_playlist_tracks(playlist_id):
     """Get playlist tracks refrenced by playlist_id."""

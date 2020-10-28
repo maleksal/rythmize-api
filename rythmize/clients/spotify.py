@@ -89,11 +89,13 @@ class SpotifyClientAuth(object):
             if 'refresh_token' in data.keys():
                 self.refresh_token = data['refresh_token']
             return {'token': self.token, 'refresh_token': self.refresh_token, 'expires': self.expires}
-
         if self.code:
             r = self.get_access_token(self.code)
             return assign_values(r)
-        if not self.code and (not self.token and self.refresh_token):
+        
+        if not self.code and (not self.token and\
+            not self.refresh_token and\
+            not self.expires):
             return False
         if not self.code and self.expires < datetime.now():
             r = self.refresh_access_token()
@@ -127,7 +129,10 @@ class SpotifyClientPlaylist(SpotifyClientAuth):
         response = requests.get(endpoint, headers=headers, params=self.default_params)
         if response.status_code in range(200, 299):
             r = response.json()
-            return r
+            response_data = {}
+            for data in r['items']:
+                response_data[data['id']] = {'title': data['name'], 'tracks': data['tracks']['total'], 'service':'spotify'}
+            return response_data
         return None
 
     def get_playlist_info(self):
@@ -142,7 +147,16 @@ class SpotifyClientPlaylist(SpotifyClientAuth):
         response = requests.get(endpoint, headers=headers, params=self.default_params)
         if response.status_code in range(200, 299):
             r = response.json()
-            return r
+            response_data = {}
+            for data in r['items']:
+                response_data[data['track']['id']] = {'title': data['track']['name'], 
+                                            'duration': str(timedelta(milliseconds=data['track']['duration_ms']))[:4] + ' min',
+                                            'album': data['track']['album']['name'],
+                                            'artist': data['track']['album']['artists'][0]['name'],
+                                            'service': 'spotify'
+                                            }
+                print(response_data)
+            return response_data
         return None
 
     def create_playlist(self, name, description=None, public=False):
@@ -233,6 +247,5 @@ class SpotifyClient(SpotifyClientPlaylist, SpotifyClientTrack):
             r = response.json()
             return r
         return None
-
 
         

@@ -1,5 +1,6 @@
 """Authentication api routes."""
 import flask_praetorian
+from flask import make_response
 from flask import jsonify, request
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from marshmallow import ValidationError
@@ -86,4 +87,28 @@ def user_login():
         return jsonify(response), 200
     return jsonify("Please verify your credentials."), 401
 
+@api_views.route('auth/user/current', methods=['GET'])
+@flask_praetorian.auth_required
+def user_details():
+    """
+    Gets user details like username email
+    Returns:
+        200, details or 401
+    """
+    user_id = flask_praetorian.current_user().id
+    if user := User.query.get(user_id):
+        details = {
+            "username": user.username,
+            "email": user.email
+        }
+        return jsonify(details), 200
+    return 404
 
+@api_views.route('auth/validate/jwt')
+@flask_praetorian.auth_required
+def validate_token():
+    """
+    Gets an auth token and responds back with
+    200 if token is valid else 401.
+    """
+    return make_response(jsonify('valid token'), 200)

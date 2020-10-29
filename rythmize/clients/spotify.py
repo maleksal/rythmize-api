@@ -129,9 +129,9 @@ class SpotifyClientPlaylist(SpotifyClientAuth):
         response = requests.get(endpoint, headers=headers, params=self.default_params)
         if response.status_code in range(200, 299):
             r = response.json()
-            response_data = {}
+            response_data = []
             for data in r['items']:
-                response_data[data['id']] = {'title': data['name'], 'tracks': data['tracks']['total'], 'service':'spotify'}
+                response_data.append {data['id']:{'title': data['name'], 'tracks': data['tracks']['total'], 'service':'spotify'}})
             return response_data
         return None
 

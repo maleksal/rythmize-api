@@ -140,7 +140,7 @@ class SpotifyClientPlaylist(SpotifyClientAuth):
         data = self.get_user_playlists()
         result = []
         for index in data:
-            for key, value in index:
+            for key, value in index.items():
                 result.append({index[key['name']]:value['id']})
         return result
     

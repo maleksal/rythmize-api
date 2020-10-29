@@ -138,7 +138,11 @@ class SpotifyClientPlaylist(SpotifyClientAuth):
     def get_playlist_info(self):
         """Extracts playlist {name: id} from playlist data."""
         data = self.get_user_playlists()
-        return [{pl['name']:pl['id']} for pl in data['items']]
+        result = []
+        for index in data:
+            for pl in index['items']:
+                result.append({pl['name']:pl['id']})
+        return result
     
     def get_playlist_tracks(self, playlist_id=None):
         """Retrieves a playlist based on it's id."""

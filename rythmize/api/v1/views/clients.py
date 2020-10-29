@@ -1,6 +1,6 @@
 """clients auth routes."""
 import flask_praetorian
-from flask import jsonify, request
+from flask import jsonify, request, redirect
 from rythmize.api.v1.views import api_views
 
 from ....clients.spotify import SpotifyClient
@@ -37,7 +37,7 @@ def authenticate_callback():
     spotify_table.expires_in = data["expires"]
     db_manager.save()
 
-    return jsonify('user is now connected'), 200
+    return redirect("https://rythmize-frontend.herokuapp.com")
 
 
 @api_views.route('auth/connect/spotify/status', methods=["GET"])

@@ -37,7 +37,7 @@ def authenticate_callback():
     spotify_table.expires_in = data["expires"]
     db_manager.save()
 
-    return redirect("https://rythmize-frontend.herokuapp.com")
+    return redirect("https://rythmize-frontend.herokuapp.com/dashboard")
 
 
 @api_views.route('auth/connect/spotify/status', methods=["GET"])

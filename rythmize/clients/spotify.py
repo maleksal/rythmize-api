@@ -141,7 +141,7 @@ class SpotifyClientPlaylist(SpotifyClientAuth):
         result = []
         for index in data:
             for key, value in index.items():
-                result.append({index[key['name']]:value['id']})
+                result.append({value['title']:key})
         return result
     
     def get_playlist_tracks(self, playlist_id=None):
@@ -157,7 +157,8 @@ class SpotifyClientPlaylist(SpotifyClientAuth):
                                             'duration': str(timedelta(milliseconds=data['track']['duration_ms']))[:4] + ' min',
                                             'album': data['track']['album']['name'],
                                             'artist': data['track']['album']['artists'][0]['name'],
-                                            'service': 'spotify'
+                                            'service': 'spotify',
+                                            'uri': data['track']['uri']
                                             }})
             return response_data
         return None
@@ -202,7 +203,11 @@ class SpotifyClientTrack(SpotifyClientAuth):
         Returns:
             list of track uris or None.
         """
-        return [t['track']['uri'] for t in tracks['items']] 
+        uris = []
+        for t in tracks:
+            for uri in t.values():
+                uris.append(uri['uri'])
+        return uris 
 
 class SpotifyClient(SpotifyClientPlaylist, SpotifyClientTrack):
     

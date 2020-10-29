@@ -131,7 +131,7 @@ class SpotifyClientPlaylist(SpotifyClientAuth):
             r = response.json()
             response_data = []
             for data in r['items']:
-                response_data.append {data['id']:{'title': data['name'], 'tracks': data['tracks']['total'], 'service':'spotify'}})
+                response_data.append({data['id']:{'title': data['name'], 'tracks': data['tracks']['total'], 'service':'spotify'}})
             return response_data
         return None
 

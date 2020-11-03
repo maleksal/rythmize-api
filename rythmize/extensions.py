@@ -20,15 +20,17 @@ message = Message
 
 # Setup email confirmation token
 
+
 def send_email_verification(email):
-    from flask import url_for
     """Send an email verification link to user email."""
+    from flask import url_for
     serializer = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
     token = serializer.dumps(email, salt='rythmize-email-confirmation')
     link = url_for('api_views.email_confirmation', token=token, _external=True)
     msg = message('Confirm email', recipients=[email])
     msg.body = f'Your confirmation link is {link}'
     mail.send(msg)
+
 
 def confirm_email_by_link(token):
     """
@@ -38,7 +40,8 @@ def confirm_email_by_link(token):
     """
     serializer = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
     try:
-        email = serializer.loads(token, salt='rythmize-email-confirmation', max_age=3600)
+        email = serializer.loads(
+            token, salt='rythmize-email-confirmation', max_age=3600)
     except (BadSignature, SignatureExpired):
         return None
     return email
@@ -65,13 +68,13 @@ class DatabaseManager(object):
     def close(self):
         """Closes database connection."""
         self._session.close()
-    
+
     def get(self, cls, id=None, username=None):
         """Retrives an object from database."""
         if id:
             return cls.query.filter_by(id=id).one_or_none()
         return cls.query.filter_by(username=username).one_or_none()
 
+
 # class instance
 db_manager = DatabaseManager()
-        

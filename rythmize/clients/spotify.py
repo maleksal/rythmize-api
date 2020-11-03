@@ -89,10 +89,10 @@ class SpotifyClientAuth(object):
             if 'refresh_token' in data.keys():
                 self.refresh_token = data['refresh_token']
             return {'token': self.token, 'refresh_token': self.refresh_token, 'expires': self.expires}
+        
         if self.code:
             r = self.get_access_token(self.code)
             return assign_values(r)
-        
         if not self.code and (not self.token and\
             not self.refresh_token and\
             not self.expires):

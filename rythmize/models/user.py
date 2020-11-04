@@ -18,15 +18,15 @@ class FlaskApiSecurity(object):
     @property
     def rolenames(self):
         return []
-    
+
     @classmethod
     def lookup(cls, username):
         return cls.query.filter_by(username=username).one_or_none()
-    
+
     @classmethod
     def identify(cls, id):
         return cls.query.get(id)
-    
+
     @property
     def identity(self):
         return self.id
@@ -37,24 +37,24 @@ class User(db.Model, FlaskApiSecurity):
     __tablename__ = 'user'
 
     id = db.Column(
-                db.Integer,
-                primary_key=True)
+        db.Integer,
+        primary_key=True)
     username = db.Column(
-                db.String(255),
-                nullable=False, unique=True)
+        db.String(255),
+        nullable=False, unique=True)
     email = db.Column(
-                db.String(255),
-                nullable=False)
+        db.String(255),
+        nullable=False)
     email_confirmed = db.Column(
-                        db.Boolean,
-                        default=False)
+        db.Boolean,
+        default=False)
     _password = db.Column(
-                db.Text(),
-                nullable=False)
+        db.Text(),
+        nullable=False)
     spotify_keys = db.relationship("SpotifyJsonWebToken",
-                                uselist=False, cascade="all, delete, delete-orphan")
+                                   uselist=False, cascade="all, delete, delete-orphan")
     youtube_keys = db.relationship("YoutubeJsonWebToken",
-                                uselist=False, cascade="all, delete, delete-orphan") 
+                                   uselist=False, cascade="all, delete, delete-orphan")
 
     @property
     def password(self):

@@ -6,7 +6,7 @@ from marshmallow import ValidationError
 from rythmize.api.v1.views import api_views
 
 from .....extensions import (confirm_email_by_link, db_manager, guard, mail,
-                            message, send_email_verification)
+                             message, send_email_verification)
 from .....models.keys import SpotifyJsonWebToken, YoutubeJsonWebToken
 from .....models.user import User, UserSchema
 
@@ -58,8 +58,9 @@ def email_confirmation(token):
     """
     email = confirm_email_by_link(token)
     if email:
-        user = User.query.filter_by(email=email).first_or_404()
+        user = User.query.filter_by(email=email).first_or_404()  # get user
         if not user.email_confirmed:
+            # if email not confirmed then confirm it.
             user.email_confirmed = True
             db_manager.add(user)
             db_manager.save()
@@ -81,6 +82,7 @@ def user_login():
     password = req.get('password', None)
     user = User.query.filter_by(username=username).one_or_none()
     if user and user.check_password(password):
+        # check if user exists and valid password
         response = {
             'access_token': guard.encode_jwt_token(user),
             'verified': user.email_confirmed

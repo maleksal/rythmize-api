@@ -22,5 +22,5 @@ def user_details():
             "username": user.username,
             "email": user.email
         }
-        return jsonify(details), 200
+        return jsonify(details), 200  # return user details.
     return 404

@@ -7,6 +7,7 @@ dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 if os.path.exists(dotenv_path):
     load_dotenv(dotenv_path)
 
+
 class Config:
     """Base config."""
     DEBUG = False
@@ -30,6 +31,7 @@ class DevelopmentConfig(Config):
     MAIL_DEFAULT_SENDER = environ.get('MAIL_DEFAULT_SENDER')
     MAIL_SUPPRESS_SEND = False
 
+
 class ProductionConfig(Config):
     """Config for profuction."""
     ENV = 'production'
@@ -41,6 +43,7 @@ class ProductionConfig(Config):
     MAIL_PASSWORD = environ.get("MAIL_PASSWORD")
     MAIL_PORT = environ.get("MAIL_PORT")
     MAIL_DEFAULT_SENDER = environ.get('MAIL_DEFAULT_SENDER')
+
 
 config = {
     "Production": ProductionConfig,

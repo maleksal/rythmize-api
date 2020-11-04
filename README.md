@@ -1,4 +1,4 @@
-# rythmize-api 
+# rythmize api 
 ## Introduction:
 Rymthize is a web based application that enabels you to transfer your music between music streaming services. This project is an End-of-year graduation project, required by Holberton School.
 - Blog post about our journey [HERE]()

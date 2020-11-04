@@ -89,6 +89,13 @@ class SpotifyClientAuth(object):
         return requests.post(self.tokenapi_endpoint, data=data, headers=headers)
 
     def handle_auth(self):
+        """
+        Handles authentication with spotify, checks for:
+        - user token is valid, else reuest new token
+        - user dont have token, then redirect user to authenticate.
+        Returns:
+            Boolean: True if user is authenticated, else False
+        """
         def validate_and_assign_values(response):
             """assigns values to variables."""
             if response.status_code in range(200, 299):

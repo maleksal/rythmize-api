@@ -74,6 +74,20 @@ class DatabaseManager(object):
         if id:
             return cls.query.filter_by(id=id).one_or_none()
         return cls.query.filter_by(username=username).one_or_none()
+    
+    def update_key_table(self, user_id, service='spotify', **kwargs):
+        """Updates user keys table with new values."""
+        from .models.user import User
+        user = User.query.get(user_id)
+        key_table = user.spotify_keys
+        if service == 'youtube':
+            key_table = user.youtube_keys
+        for attr, val in kwargs.items():
+            if attr in ['jwt_token', 'refresh_token', 'expires_in']:
+                setattr(user.spotify_keys, attr, val)
+            print(user.spotify_keys.jwt_token)
+        self.add(key_table)
+        self.save()
 
 
 # class instance

@@ -14,11 +14,7 @@ def get_user_playlists():
     user_id = flask_praetorian.current_user().id
     user = User.query.get(user_id)
     sclient = SpotifyClient(None, user)
-    if data := sclient.handle_auth():
-        if type(data) == dict:
-            user.spotify_keys.jwt_token = data["token"]
-            user.spotify_keys.expires_in = data["expires"]
-            db_manager.save()
+    if sclient.handle_auth():
         return jsonify(sclient.get_user_playlists()), 200
     return jsonify("user not authorized"), 401
 
@@ -30,11 +26,7 @@ def get_playlist_tracks(playlist_id):
     user_id = flask_praetorian.current_user().id
     user = User.query.get(user_id)
     sclient = SpotifyClient(None, user)
-    if data := sclient.handle_auth():
-        if type(data) == dict:
-            user.spotify_keys.jwt_token = data["token"]
-            user.spotify_keys.expires_in = data["expires"]
-            db_manager.save()
+    if sclient.handle_auth():
         return jsonify(sclient.get_playlist_tracks(playlist_id)), 200
     return jsonify("user not authorized"), 401
 
@@ -51,11 +43,7 @@ def spotify_transfer():
     songs = req.get('tracks', None)
     if playlist_name and songs and type(songs) == list:
         sclient = SpotifyClient(None, user)
-        if data := sclient.handle_auth():
-            if type(data) == dict:
-                user.spotify_keys.jwt_token = data["token"]
-                user.spotify_keys.expires_in = data["expires"]
-                db_manager.save()
+        if sclient.handle_auth():
             return jsonify(sclient.perform_transfer_tracks(playlist_name, songs)), 200
         return jsonify("user not authorized"), 401
     return {}, 400

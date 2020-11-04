@@ -16,28 +16,39 @@ class SpotifyClientAuth(object):
     redirect_uri = environ.get('CLIENT_REDIRECT_URI')
     tokenapi_endpoint = 'https://accounts.spotify.com/api/token'
     authorize_endpoint = 'https://accounts.spotify.com/authorize'
-    
+
     def __init__(self, code, user_object):
         """
         Keys_object: <user_object>.jwt_keys
         """
-        self.user_id = user_object.id
-        keys_object = user_object.spotify_keys
+        self.__user = user_object
+        self.user_id = self.__user.id
+        keys_object = self.__user.spotify_keys
         self.token = keys_object.jwt_token
         self.refresh_token = keys_object.refresh_token
         self.expires = keys_object.expires_in
         self.code = code
 
+    def update_database(self):
+        """updates user in database with new values."""
+        from ..extensions import db_manager
+        
+        prepare_values = {
+                'jwt_token': self.token,
+                'refresh_token': self.refresh_token,
+                'expires_in': self.expires}
+        db_manager.update_key_table(self.user_id, **prepare_values)
+
     def client_credentials(self):
         """Returns a base64 encoded string."""
         client_id = self.client_id
         client_secret = self.client_secret
-        if client_secret == None or client_id == None:
-            raise Exception("Missing client_id and client_secret")
-        client_creds = f"{client_id}:{client_secret}"
-        client_creds_b64 = base64.b64encode(client_creds.encode())
-        return client_creds_b64.decode()
-    
+        if client_secret is not None or client_id is not None:
+            client_creds = f"{client_id}:{client_secret}"
+            client_creds_b64 = base64.b64encode(client_creds.encode())
+            return client_creds_b64.decode()
+        raise Exception("Missing client_id and client_secret")
+
     def get_token_headers(self):
         """requests a new token using refresh_token"""
         client_creds_b64 = self.client_credentials()
@@ -69,38 +80,43 @@ class SpotifyClientAuth(object):
         return requests.post(self.tokenapi_endpoint, data=data, headers=headers)
     
     def refresh_access_token(self):
-        """refresh access token"""
+        """refresh an access token"""
         data = {
             'grant_type': 'refresh_token',
             'refresh_token': self.refresh_token
-        }
-        headers = {
-            'Authorization': f'Basic {self.client_credentials()}'
-        }
+            }
+        headers = {'Authorization': f'Basic {self.client_credentials()}'}
         return requests.post(self.tokenapi_endpoint, data=data, headers=headers)
 
     def handle_auth(self):
-        def assign_values(response):
-            if response.status_code not in range(200, 299):
-                return False
-            data = response.json()
-            self.token = data['access_token']
-            self.expires = data['expires_in']
-            if 'refresh_token' in data.keys():
-                self.refresh_token = data['refresh_token']
-            return {'token': self.token, 'refresh_token': self.refresh_token, 'expires': self.expires}
-        
-        if self.code:
-            r = self.get_access_token(self.code)
-            return assign_values(r)
-        if not self.code and (not self.token and\
-            not self.refresh_token and\
-            not self.expires):
+        def validate_and_assign_values(response):
+            """assigns values to variables."""
+            if response.status_code in range(200, 299):
+                data = response.json()
+                self.token = data['access_token']
+                self.expires = data['expires_in']
+                if 'refresh_token' in data.keys():
+                    # if refresh token provided in resonse then assigned to it's attr,
+                    # this function works for getting an access_token and refreshing token.
+                    self.refresh_token = data['refresh_token']
+                return True
             return False
-        if not self.code and self.expires < datetime.now():
-            r = self.refresh_access_token()
-            return assign_values(r)
-        return True
+        # when code is not None then will get an access token
+        if self.code and validate_and_assign_values(self.get_access_token(self.code)):
+            self.update_database()
+            return True
+        if not self.code:
+            # When code is None then will check: 
+            if self.token and self.refresh_token and self.expires:
+                # if no token is present then return false. 
+                if self.expires < datetime.now():
+                    # if token is expired then request new one.
+                    response = self.refresh_access_token()
+                    if validate_and_assign_values(response):
+                        self.update_database()
+                        return True
+                return True
+        return False
 
     def get_resource_header(self):
         """Generates header."""
@@ -113,14 +129,14 @@ class SpotifyClientAuth(object):
         headers = self.get_resource_header()
         response = requests.get('https://api.spotify.com/v1/me/', headers=headers)
         if response.status_code in range(200, 299):
-            r = response.json()
-            return r['id']
+            # if valid response, return id
+            return response.json()['id']
         return None
 
 
 class SpotifyClientPlaylist(SpotifyClientAuth):
-    """SpotifyClientPlaylist, hHandles CRUD operations for playlist."""
-    default_params = {"offset": 0}
+    """SpotifyClientPlaylist, Handles CRUD operations for playlist."""
+    default_params = {"offset": 0} # nedeed for requests with spotify api
 
     def get_user_playlists(self):
         """Get current user playlists."""
@@ -128,24 +144,37 @@ class SpotifyClientPlaylist(SpotifyClientAuth):
         headers = self.get_resource_header()
         response = requests.get(endpoint, headers=headers, params=self.default_params)
         if response.status_code in range(200, 299):
-            r = response.json()
+            # if valid request and valid json then go here.
             response_data = []
-            for data in r['items']:
+            for data in response.json()['items']:
+                # iterate over json response and add playlist
+                # id, name, nnumber of tracks, and service to a list.
                 response_data.append({data['id']:{'title': data['name'], 'tracks': data['tracks']['total'], 'service':'spotify'}})
             return response_data
         return None
 
     def get_playlist_info(self):
-        """Extracts playlist {name: id} from playlist data."""
-        data = self.get_user_playlists()
+        """Extracts playlist {title: id} from playlist data."""
+        data = self.get_user_playlists() # gets data of playlist, from methode above.
         result = []
-        for index in data:
-            for key, value in index.items():
-                result.append({value['title']:key})
+        for elements in data:
+            # elements is a dictionary
+            for playlist_id, playlist_data in elements.items():
+                result.append({playlist_data['title']:playlist_id})
         return result
     
     def get_playlist_tracks(self, playlist_id=None):
-        """Retrieves a playlist based on it's id."""
+        """
+        Retrieves tracks of  playlist based on  playlist_id.
+        Returns:
+                id:       Track id 
+                title:    Track name,   
+                duration: Track duration in minutes
+                album:    Associated album of track
+                artist:   The artist of track
+                service:  Spotify or Youtube
+                uri:      Track uri 
+        """
         endpoint = f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks'
         headers = self.get_resource_header()
         response = requests.get(endpoint, headers=headers, params=self.default_params)
@@ -153,28 +182,29 @@ class SpotifyClientPlaylist(SpotifyClientAuth):
             r = response.json()
             response_data = []
             for data in r['items']:
-                response_data.append({data['track']['id']: {'title': data['track']['name'], 
-                                            'duration': str(timedelta(milliseconds=data['track']['duration_ms']))[:4] + ' min',
-                                            'album': data['track']['album']['name'],
-                                            'artist': data['track']['album']['artists'][0]['name'],
-                                            'service': 'spotify',
-                                            'uri': data['track']['uri']
-                                            }})
+                response_data.append(
+                    {data['track']['id']: {'title': data['track']['name'], 
+                    'duration': str(timedelta(milliseconds=data['track']['duration_ms']))[:4] + ' min',
+                    'album': data['track']['album']['name'],
+                    'artist': data['track']['album']['artists'][0]['name'],
+                    'service': 'spotify',
+                    'uri': data['track']['uri']
+                    }})
             return response_data
         return None
 
     def create_playlist(self, name, description=None, public=False):
         """Create A New Playlist"""
         spotify_id = self.get_user_id()
+        # header and params.
         endpoint = "https://api.spotify.com/v1/users/{}/playlists".format(spotify_id)
         headers = self.get_resource_header()
         request_body = json.dumps({"name": name, "description": description, "public": public})
-        # create playlist
+        # acctual request to create playlist.
         response = requests.post(endpoint, data=request_body, headers=headers)
         if response.status_code in range(200, 299):
-            r = response.json()
-            # playlist id
-            return r["id"]
+            # if valid response, return playlist id.
+            return response.json()["id"]
         return None
 
 
@@ -182,32 +212,32 @@ class SpotifyClientTrack(SpotifyClientAuth):
     """CRUD operation for track."""
 
     def get_track_uri(self, song_name, artist):
-        """Search For the Song"""
+        """
+        Search For the Song
+        Returns: Track uri
+        """
         query = "https://api.spotify.com/v1/search?query=track%3A{}+artist%3A{}&type=track&offset=0&limit=20".format(
             song_name,
             artist
         )
         response = requests.get(query, headers= self.get_resource_header())
         if response.status_code in range(200, 299):
-            r = response.json()
-            songs = r["tracks"]["items"]
-            # only use the first song
-            uri = songs[0]["uri"]
+            # if valid response
+            songs = response.json()["tracks"]["items"] # extract tracks
+            uri = songs[0]["uri"]        # get only first track
             return uri
         return None
     
     def get_tracks_uri(self, tracks):
         """
-        Params:
-            tracks: list of items.
+        Gets tracks uri from json data, this method is used to check if
+        a specific playlist does not have that track before adds it.
+        
+        Parameters: tracks: list of dic's.
         Returns:
-            list of track uris or None.
+            List contains uri's || None
         """
-        uris = []
-        for t in tracks:
-            for uri in t.values():
-                uris.append(uri['uri'])
-        return uris 
+        return [uri['uri'] for t in tracks for uri in t.values()]
 
 class SpotifyClient(SpotifyClientPlaylist, SpotifyClientTrack):
     
@@ -221,39 +251,43 @@ class SpotifyClient(SpotifyClientPlaylist, SpotifyClientTrack):
             the snapshot_id of created playlist or None
         """
         def check_for_playlist(playlist):
-            '''takes a list of strings: playlist names.'''
-            found_id = None
+            """
+            This function checks if playlist is already created.
+            Parameters:
+                playlist: List of strings.
+            Returns:
+                playlist_id or None
+            """
+            found_p_id = None
             current_user_playlists = self.get_playlist_info()
-            for _dic in current_user_playlists:
-                for name, _id in _dic.items():
-                    if name == playlist_name:
-                        print('playlist found')
-                        found_id = _id
-            return found_id
-
-        
+            for data_dic in current_user_playlists:
+                for p_name, playlist_id in data_dic.items():
+                    if p_name == playlist_name:
+                        found_p_id = playlist_id
+            return found_p_id
         uris = []
         # Check for playlist
         playlist_id = check_for_playlist(playlist_name)
         if not playlist_id:
+            # If no id found, then create a new playlist.
             playlist_id = self.create_playlist(
                 playlist_name,
                 description='playlist created by rythmize.'
             )
+        # Move uris into playlist. 
         track_uris = self.get_tracks_uri(self.get_playlist_tracks(playlist_id))
         for song in songs:
-            track_name, artist= song['track'], song['artist']
+            track_name, artist = song['track'], song['artist']
             if track_name and artist:
                 uri = self.get_track_uri(track_name, artist)
                 if uri and uri not in track_uris:
+                    # Add uri to uri's
                     uris.append(uri)
         endpoint = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks"
         headers = self.get_resource_header()
         request_data = json.dumps(uris)
         response = requests.post(endpoint, headers=headers, data=request_data)
         if response.status_code in range(200, 299):
-            r = response.json()
-            return r
+            # Valid response, return response
+            return response.json()
         return None
-
-        

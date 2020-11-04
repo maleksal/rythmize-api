@@ -81,11 +81,12 @@ class DatabaseManager(object):
         user = User.query.get(user_id)
         key_table = user.spotify_keys
         if service == 'youtube':
+            # if service is youtube then get the youtube table
             key_table = user.youtube_keys
         for attr, val in kwargs.items():
+            # set attr of youtube table with new values
             if attr in ['jwt_token', 'refresh_token', 'expires_in']:
                 setattr(user.spotify_keys, attr, val)
-            print(user.spotify_keys.jwt_token)
         self.add(key_table)
         self.save()
 

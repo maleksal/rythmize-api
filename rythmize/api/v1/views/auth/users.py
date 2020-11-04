@@ -5,10 +5,10 @@ from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from marshmallow import ValidationError
 from rythmize.api.v1.views import api_views
 
-from ....extensions import (confirm_email_by_link, db_manager, guard, mail,
+from .....extensions import (confirm_email_by_link, db_manager, guard, mail,
                             message, send_email_verification)
-from ....models.keys import SpotifyJsonWebToken, YoutubeJsonWebToken
-from ....models.user import User, UserSchema
+from .....models.keys import SpotifyJsonWebToken, YoutubeJsonWebToken
+from .....models.user import User, UserSchema
 
 
 @api_views.route('auth/user/register', methods=['POST'])

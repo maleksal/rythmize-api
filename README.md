@@ -1,8 +1,6 @@
 # rythmize-api 
 ## Introduction:
 Rymthize is a web based application that enabels you to transfer your music between music streaming services. This project is an End-of-year graduation project, required by Holberton School.
-
-> This repo represents rythmize-backend, you can see our frontend repository [HERE](https://github.com/SeifJelidi/rythmize-frontend/).
 - Blog post about our journey [HERE]()
 - Linkdin profile: [Malek Salem](https://www.linkedin.com/in/malek-salem)
 - Our deployed API: https://rythmize.herokuapp.com/
@@ -32,7 +30,7 @@ OUTPUT:
  * Debugger is active!
  * Debugger PIN: 260-463-794
 ```
--- **Run App in shell mode**
+- **Run App in shell mode**
 ```
 $ python3 manager.py shell
 
@@ -40,6 +38,12 @@ OUTPUT:
     In [1]: your command
 
 ```
+
 > run.py is used only for production
 
+## Contributing:
+Contribution is open for everyone.
+## Related projects:
+Rythmize frontend [repository](https://github.com/SeifJelidi/rythmize-frontend/)
+## Licensing:
 

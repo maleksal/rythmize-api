@@ -11,6 +11,23 @@ Rymthize is a web based application that enabels you to transfer your music betw
 ```terminal
 $ pip install -r requirements.txt
 ```
+- **Setup .env file**
+```bash
+CONFIG_ENV=Development
+FLASK_ADMIN_SWATCH=cerulean
+SECRET_KEY= secret_key_here
+DEV_DATABASE_URI = link_to_database 
+PROD_DATABASE_URI= link_to_production_database (optional in case of development)
+
+MAIL_SERVER= your_smtp_mail_server
+MAIL_USERNAME= mail_username
+MAIL_PASSWORD= mail_password
+MAIL_PORT= mail_port
+MAIL_DEFAULT_SENDER = mail_default_sender
+CLIENT_ID = spotify_client_id
+CLIENT_SECRET= spotify_client_secret
+CLIENT_REDIRECT_URI=http://127.0.0.1:5000/api/v1/auth/connect/spotify/callback/
+```
 - **Init database**
 ```
 $ ./init_db.sh

@@ -11,10 +11,11 @@ from ....models.user import User
 @api_views.route('clients/spotify/playlists/', methods=["GET"])
 @flask_praetorian.auth_required
 def get_user_playlists():
-    user_id = flask_praetorian.current_user().id
+    user_id = flask_praetorian.current_user().id  # extract user id from jwt token
     user = User.query.get(user_id)
     sclient = SpotifyClient(None, user)
     if sclient.handle_auth():
+        # if user authenticated
         return jsonify(sclient.get_user_playlists()), 200
     return jsonify("user not authorized"), 401
 
@@ -27,6 +28,7 @@ def get_playlist_tracks(playlist_id):
     user = User.query.get(user_id)
     sclient = SpotifyClient(None, user)
     if sclient.handle_auth():
+        # if user authenticated
         return jsonify(sclient.get_playlist_tracks(playlist_id)), 200
     return jsonify("user not authorized"), 401
 

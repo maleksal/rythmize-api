@@ -19,6 +19,7 @@ def authenticate_callback():
         code = request.args.get('code')
         sclient = SpotifyClient(code, user)
         if sclient.handle_auth():
+            # if user authenticated, then redirect
             return redirect("https://rythmize-frontend.herokuapp.com/dashboard")
     return jsonify("Failed to authenticate."), 401
 
@@ -30,5 +31,6 @@ def spotify_status():
     user = User.query.get(user_id)
     sclient = SpotifyClient(None, user)
     if sclient.handle_auth():
+        # if user is authenticated
         return jsonify('User connected'), 200
     return jsonify({"url": sclient.callback_uri_auth()}), 401

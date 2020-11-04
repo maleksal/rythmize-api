@@ -12,13 +12,13 @@ from ..extensions import db
 
 class Security(object):
     """Handles encryption && decryption."""
-    
+
     def load_configs(self):
         """Class constructor."""
         secret_key = current_app.secret_key
         # key = Fernet.generate_key()
         return Fernet(bytes(secret_key, 'utf-8'))
-    
+
     def encrypt_data(self, value):
         """Handles Encryption."""
         security = self.load_configs()
@@ -30,6 +30,7 @@ class Security(object):
         if value:
             return security.decrypt(bytes(value, 'utf-8')).decode()
         return None
+
 
 class BaseClass(Security):
     """Base class contains common columns and methods."""
@@ -49,7 +50,7 @@ class BaseClass(Security):
         """Encrypt refresh token before store into database."""
         # encrypt refresh_token
         self._refresh_token = self.encrypt_data(value)
-    
+
     @property
     def expires_in(self):
         """Property getter."""
@@ -59,30 +60,28 @@ class BaseClass(Security):
     def expires_in(self, value):
         """Property setter, convert to datetime."""
         from datetime import datetime, timedelta
+        # convert from milliseconds to minutes
         self.token_expires_on = datetime.now() + timedelta(seconds=value),
 
     def __repr__(self):
-        return self.jwt_token[0:10] 
-
+        return self.jwt_token[0:10]
 
 
 class YoutubeJsonWebToken(db.Model, BaseClass):
     """YoutubeJsonWebToken class."""
-    
+
     __tablename__ = 'youtube_jwt'
     id = db.Column(db.Integer,
-                primary_key=True)
+                   primary_key=True)
     user_id = db.Column(db.Integer,
-                     db.ForeignKey('user.id'))
+                        db.ForeignKey('user.id'))
 
 
 class SpotifyJsonWebToken(db.Model, BaseClass):
     """SpotifyJsonWebToken class."""
-    
+
     __tablename__ = 'spotify_jwt'
     id = db.Column(db.Integer,
-                primary_key=True)
+                   primary_key=True)
     user_id = db.Column(db.Integer,
-                     db.ForeignKey('user.id'))
-
-
+                        db.ForeignKey('user.id'))

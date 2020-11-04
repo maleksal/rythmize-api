@@ -1,4 +1,8 @@
-# rythmize api 
+# Rythmize api [![Generic badge](https://img.shields.io/badge/Python-3.8.5-<COLOR>.svg)](https://shields.io/)
+<p align="center">
+  <img src="https://github.com/maleksal/rythmize-api/blob/main/screenshots/c0a3f61c-cf72-41d4-8b45-567cb4e2ee97_200x200.png" alt="Sublime's custom image"/>
+</p>
+
 ## Introduction:
 Rymthize is a web based application that enabels you to transfer your music between music streaming services. This project is an End-of-year graduation project, required by Holberton School.
 - Blog post about our journey [HERE]()
@@ -55,6 +59,10 @@ OUTPUT:
     In [1]: your command
 
 ```
+
+**Screenshots:**
+![](https://github.com/maleksal/rythmize-api/blob/main/screenshots/Screenshot%20from%202020-11-04%2016-17-06.png)
+![](https://github.com/maleksal/rythmize-api/blob/main/screenshots/Screenshot%20from%202020-11-04%2016-17-50.png)
 
 > run.py is used only for production
 

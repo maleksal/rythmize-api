@@ -5,7 +5,7 @@
 
 ## Introduction:
 Rymthize is a web based application that enabels you to transfer your music between music streaming services. This project is an end-of-foundations project, required by Holberton School.
-- Blog post about our journey [HERE]()
+- Blog post about our journey [HERE](https://cyberxtech.medium.com/how-i-built-my-project-rythmize-657f7fe985e2)
 - Linkdin profile: [Malek Salem](https://www.linkedin.com/in/malek-salem)
 - Our deployed API: https://rythmize.herokuapp.com/
 - our API documentation : [API docs](https://web.postman.co/collections/4200498-016390b8-711c-4da1-abee-f6813d455b3e?workspace=ce1094ed-f324-4076-8a32-761325692d1d)
